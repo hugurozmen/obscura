@@ -4,206 +4,84 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Obscura</title>
+<meta name="description" content="A picture-guessing game. A movie scene, an actor or an anime character starts as a blur. Name it early and the points are yours.">
+<meta name="theme-color" content="#14110f">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Obscura">
+<meta property="og:description" content="Name the movie, actor or anime character while it is still a blur.">
+<meta property="og:url" content="https://hugurozmen.github.io/obscura/">
+<meta property="og:image" content="https://hugurozmen.github.io/obscura/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;1,6..96,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-/* Layout idea: a darkroom. One framed picture develops in the middle; everything else is quiet edge-code around it. */
-:root {
-  color-scheme: dark;
-  --ink: #14110f;        /* darkroom black, warm */
-  --tray: #1d1916;       /* raised surface */
-  --line: #322a25;       /* hairlines */
-  --paper: #ede6da;      /* photographic paper white */
-  --dim: #9c9084;        /* secondary text */
-  --safelight: #e5482f;  /* the one accent: darkroom safelight */
-  --good: #86b87f;       /* semantic: correct */
-  --display: "Bodoni Moda", "Didot", "Bodoni MT", Georgia, serif;
-  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
-}
-* { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; }
-body { background: var(--ink); color: var(--paper); font: 400 15px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
-button, input { font: inherit; color: inherit; }
-button { cursor: pointer; }
-:focus-visible { outline: 2px solid var(--safelight); outline-offset: 2px; }
-[hidden] { display: none !important; }
-.mono { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); font-variant-numeric: tabular-nums; }
-a { color: var(--paper); text-underline-offset: 3px; }
-
-.btn { border: 1px solid var(--line); background: var(--tray); padding: 10px 16px; border-radius: 3px; font-weight: 500; transition: border-color .15s, background .15s; }
-.btn:hover { border-color: var(--dim); }
-.btn.primary { background: var(--safelight); border-color: var(--safelight); color: #170b08; font-weight: 600; }
-.btn.primary:hover { background: #f05a41; }
-.btn.ghost { background: none; }
-.btn:disabled { opacity: .4; cursor: default; }
-
-/* ---------- home ---------- */
-#home { min-height: 100%; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 48px; align-items: center; max-width: 1180px; margin: 0 auto; padding: 40px 32px; }
-.home-copy { display: flex; flex-direction: column; gap: 28px; }
-.wordmark { font: italic 500 clamp(64px, 9vw, 116px)/.9 var(--display); letter-spacing: -.02em; margin: 0; }
-.wordmark b { font-weight: 500; color: var(--safelight); }
-.lede { font-size: 18px; line-height: 1.45; max-width: 34ch; margin: 0; color: var(--paper); }
-.daily { display: flex; align-items: center; justify-content: space-between; gap: 16px; text-align: left; width: 100%; padding: 16px 18px; }
-.daily strong { display: block; font-size: 17px; }
-.daily span span { font-family: var(--mono); font-size: 12px; opacity: .8; }
-.cats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.cats .btn { text-align: left; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-.cats .btn small { font-family: var(--mono); font-size: 11px; color: var(--dim); white-space: nowrap; }
-.cats .wide { grid-column: 1 / -1; }
-.rules { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; color: var(--dim); font-size: 14px; max-width: 46ch; }
-.rules b { color: var(--paper); font-weight: 500; }
-.fine { font-size: 13px; color: var(--dim); max-width: 50ch; margin: 0; }
-.linkbtn { background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 3px; color: var(--paper); }
-.hero { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.hero-frame { aspect-ratio: 4 / 5; max-height: 76vh; background: var(--tray); border: 1px solid var(--line); overflow: hidden; display: grid; place-items: center; }
-.hero-frame canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
-.edge { display: flex; justify-content: space-between; gap: 12px; }
-
-/* ---------- play ---------- */
-#play { height: 100%; display: flex; flex-direction: column; max-width: 1100px; margin: 0 auto; padding: 14px 20px 18px; gap: 12px; }
-.bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.bar .name { font: italic 500 24px/1 var(--display); background: none; border: 0; padding: 0; }
-.pips { display: flex; gap: 6px; }
-.pips i { width: 22px; height: 4px; background: var(--line); }
-.pips i.done { background: var(--paper); }
-.pips i.now { background: var(--safelight); }
-.total { font-family: var(--mono); font-size: 14px; font-variant-numeric: tabular-nums; }
-#stage { flex: 1; min-height: 0; position: relative; display: grid; place-items: center; }
-#frame { position: relative; overflow: hidden; background: #0c0a09; border: 1px solid var(--line); }
-#frame canvas { display: block; width: 100%; height: 100%; }
-#frame.shake { animation: shake .3s; }
-@keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
-.meter { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; }
-.meter .track { height: 4px; background: var(--line); position: relative; }
-.meter .fill { position: absolute; inset: 0 auto 0 0; background: var(--safelight); width: 100%; }
-#avail { color: var(--paper); font-size: 14px; min-width: 4ch; text-align: right; }
-.ask { display: flex; gap: 8px; align-items: stretch; position: relative; }
-.ask .field { flex: 1; position: relative; min-width: 0; }
-#guess { width: 100%; height: 100%; min-height: 44px; background: var(--tray); border: 1px solid var(--line); border-radius: 3px; padding: 10px 14px; font-size: 16px; }
-#guess::placeholder { color: var(--dim); }
-#opts { position: absolute; left: 0; right: 0; bottom: calc(100% + 6px); margin: 0; padding: 4px; list-style: none; background: var(--tray); border: 1px solid var(--dim); border-radius: 3px; z-index: 5; max-height: 46vh; overflow: auto; }
-#opts li { padding: 9px 10px; display: flex; justify-content: space-between; gap: 12px; border-radius: 2px; cursor: pointer; }
-#opts li small { font-family: var(--mono); font-size: 11px; color: var(--dim); white-space: nowrap; }
-#opts li[aria-selected="true"] { background: var(--paper); color: var(--ink); }
-#opts li[aria-selected="true"] small { color: #5b524a; }
-#opts .none { color: var(--dim); cursor: default; }
-.sub { display: flex; justify-content: space-between; gap: 12px; align-items: center; min-height: 20px; flex-wrap: wrap; }
-.strikes { display: inline-flex; gap: 4px; vertical-align: middle; margin-left: 6px; }
-.strikes i { width: 8px; height: 8px; border: 1px solid var(--dim); border-radius: 50%; }
-.strikes i.on { background: var(--safelight); border-color: var(--safelight); }
-#hintText { color: var(--paper); letter-spacing: .18em; }
-
-/* reveal card */
-#verdict { display: grid; grid-template-columns: 1fr auto; gap: 6px 20px; align-items: end; }
-#verdict h2 { font: 500 clamp(24px, 3.4vw, 34px)/1.1 var(--display); margin: 0; text-wrap: balance; }
-#verdict .tag { grid-column: 1 / -1; }
-#verdict .tag.ok { color: var(--good); }
-#verdict .tag.no { color: var(--safelight); }
-#verdict p { margin: 0; color: var(--dim); font-size: 14px; }
-#verdict .credit { font-size: 12px; }
-#verdict .pts { font: 500 34px/1 var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
-#verdict .next { grid-column: 2; grid-row: 3 / span 2; align-self: end; }
-
-/* ---------- end ---------- */
-#end, #credits { max-width: 860px; margin: 0 auto; padding: 40px 24px 56px; display: flex; flex-direction: column; gap: 24px; }
-.score-big { font: 500 clamp(56px, 11vw, 104px)/.95 var(--display); margin: 0; font-variant-numeric: lining-nums; }
-.score-big small { font: 400 16px var(--mono); color: var(--dim); margin-left: 10px; }
-.rank { font: italic 500 26px/1.2 var(--display); margin: 0; color: var(--safelight); }
-.rows { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); }
-.row { display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center; background: var(--ink); padding: 8px 14px 8px 8px; }
-.row img { width: 56px; height: 56px; object-fit: cover; display: block; }
-.row strong { font-weight: 500; display: block; }
-.row .pts { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-.row .pts.zero { color: var(--dim); }
-.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-#shareText { width: 100%; background: var(--tray); border: 1px solid var(--line); color: var(--paper); font: 13px/1.5 var(--mono); padding: 10px; resize: none; }
-#credits h1 { font: 500 40px/1 var(--display); margin: 0; }
-#credits p { margin: 0; color: var(--dim); max-width: 65ch; }
-.clist { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); font-size: 13px; }
-.clist div { background: var(--ink); padding: 8px 12px; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr) auto; gap: 12px; align-items: baseline; }
-.clist span { color: var(--dim); overflow-wrap: anywhere; }
-
-@media (max-width: 820px) {
-  #home { grid-template-columns: 1fr; gap: 28px; padding: 28px 18px; }
-  .hero { order: -1; }
-  .hero-frame { aspect-ratio: 16 / 10; }
-  #play { padding: 10px 14px 14px; }
-  .ask { flex-wrap: wrap; }
-  .ask .field { flex-basis: 100%; }
-  .ask .btn { flex: 1; }
-  #verdict { grid-template-columns: 1fr; }
-  #verdict .pts { text-align: left; }
-  #verdict .next { grid-column: 1; grid-row: auto; }
-  .clist div { grid-template-columns: 1fr; gap: 2px; }
-}
-@media (prefers-reduced-motion: reduce) { #frame.shake { animation: none; } }
-
-.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
-.seg button { background: none; border: 0; padding: 7px 14px; font-size: 13px; color: var(--dim); }
-.seg button[aria-pressed="true"] { background: var(--paper); color: var(--ink); font-weight: 500; }
-.rowline { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 8px; }
-.cats .btn.locked small { color: var(--safelight); }
-#about h1 { font: 500 40px/1 var(--display); margin: 0; }
-#about h2 { font: 500 22px/1.2 var(--display); margin: 0 0 8px; }
-#about p { margin: 0 0 10px; color: var(--dim); max-width: 65ch; }
-#about { max-width: 760px; margin: 0 auto; padding: 40px 24px 56px; display: flex; flex-direction: column; gap: 28px; }
-.keyrow { display: flex; gap: 8px; flex-wrap: wrap; }
-#tmdbKey { flex: 1; min-width: 220px; background: var(--tray); border: 1px solid var(--line); border-radius: 3px; padding: 10px 12px; font: 13px var(--mono); }
-#keyMsg { min-height: 20px; }
-.hero-frame { aspect-ratio: 3 / 4; }
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<header class="site" id="site">
+  <a class="brand" href="#">Obscura</a>
+  <nav>
+    <a href="#how" data-t="nav.how"></a>
+    <a href="#profile" data-t="nav.profile"></a>
+    <a href="#about" data-t="nav.about"></a>
+    <button class="btn ghost" id="langBtn" aria-label="Language"></button>
+  </nav>
+</header>
 
 <main id="home">
   <div class="home-copy">
     <h1 class="wordmark">Obscura<b>.</b></h1>
-    <p class="lede">A movie scene, an actor or an anime character is hiding in the frame. Name it while it is still a blur and the points are yours.</p>
-    <button class="btn primary daily" id="dailyBtn" disabled><span><strong>Play today's five</strong><span id="dailyMeta">Loading the picture lists…</span></span><span aria-hidden="true">&rarr;</span></button>
+    <p class="lede" data-t="lede"></p>
+    <div class="banner" id="challenge" hidden>
+      <span><strong id="chTitle"></strong><span id="chSub"></span></span>
+      <button class="btn primary" id="chBtn" data-t="ch.accept"></button>
+    </div>
+    <button class="btn primary daily" id="dailyBtn" disabled><span><strong id="dailyTitle"></strong><span id="dailyMeta"></span></span><span aria-hidden="true">&rarr;</span></button>
     <div>
-      <div class="rowline">
-        <span class="mono">Free play, five rounds</span>
+      <div class="picker">
+        <div class="seg" id="kind" role="group" aria-label="Mode">
+          <button data-k="classic" data-t="mode.classic"></button><button data-k="sprint" data-t="mode.sprint"></button><button data-k="survival" data-t="mode.survival"></button>
+        </div>
         <div class="seg" id="diff" role="group" aria-label="Difficulty">
-          <button data-d="easy" aria-pressed="false">Easy</button><button data-d="normal" aria-pressed="true">Normal</button><button data-d="hard" aria-pressed="false">Hard</button>
+          <button data-d="easy" data-t="diff.easy"></button><button data-d="normal" data-t="diff.normal"></button><button data-d="hard" data-t="diff.hard"></button>
         </div>
       </div>
+      <p class="mono" id="kindNote" style="margin:0 0 8px"></p>
       <div class="cats" id="cats"></div>
     </div>
-    <ul class="rules">
-      <li><b>1,000 points</b> a round, draining as the picture develops over 30 seconds.</li>
-      <li><b>Wrong guess</b> costs 100. Three wrong and the round is lost.</li>
-      <li><b>Hint</b> shows the first letters for 150. <b>Difficulty</b> sets how famous the picks are.</li>
-    </ul>
-    <p class="fine">Pictures load live from TMDB and AniList and belong to their owners. <button class="linkbtn" id="aboutBtn">Settings and credits</button></p>
+    <p class="fine"><span data-t="fine"></span> <a href="#about" data-t="fine.link"></a></p>
   </div>
   <div class="hero">
-    <div class="hero-frame"><canvas id="heroCanvas" width="600" height="800" aria-label="A picture slowly coming into focus"></canvas></div>
-    <div class="edge mono"><span id="heroFx">Developing</span><span id="heroName">&nbsp;</span></div>
+    <div class="hero-frame"><canvas id="heroCanvas" width="600" height="800"></canvas></div>
+    <div class="edge mono"><span id="heroFx">&nbsp;</span><span id="heroName">&nbsp;</span></div>
   </div>
 </main>
 
 <section id="play" hidden>
   <div class="bar">
-    <button class="name" id="quitBtn" title="Back to start">Obscura</button>
+    <button class="name" id="quitBtn">Obscura</button>
     <div class="pips" id="pips" aria-hidden="true"></div>
-    <div class="total"><span class="mono">Score </span><span id="total">0</span></div>
+    <div id="hud" hidden></div>
+    <div class="total"><span class="mono" data-t="score"></span> <span id="total">0</span></div>
   </div>
   <div class="edge mono"><span id="roundLabel"></span><span id="fxLabel"></span></div>
-  <div id="stage"><div id="frame"><canvas id="cv"></canvas></div></div>
+  <div id="stage"><div id="frame"><canvas id="cv"></canvas><div id="flash" hidden><span id="flashName"></span><span id="flashPts"></span></div></div></div>
 
   <div id="guessing">
-    <div class="meter"><span class="mono">Points left</span><div class="track"><div class="fill" id="fill"></div></div><span class="mono" id="avail">1000</span></div>
+    <div class="meter"><span class="mono" data-t="pointsLeft"></span><div class="track"><div class="fill" id="fill"></div></div><span class="mono" id="avail">1000</span></div>
     <form class="ask" id="askForm" autocomplete="off" style="margin-top:10px">
       <div class="field">
         <ul id="opts" role="listbox" hidden></ul>
         <input id="guess" type="text" role="combobox" aria-controls="opts" aria-expanded="false" aria-autocomplete="list" spellcheck="false" autocapitalize="off">
       </div>
-      <button type="button" class="btn" id="hintBtn">Hint &minus;150</button>
-      <button type="button" class="btn ghost" id="giveUpBtn">Give up</button>
+      <button type="button" class="btn" id="hintBtn"></button>
+      <button type="button" class="btn ghost" id="giveUpBtn"></button>
     </form>
     <div class="sub" style="margin-top:8px">
-      <span class="mono">Wrong guesses <span class="strikes" id="strikes"><i></i><i></i><i></i></span></span>
+      <span class="mono"><span data-t="wrongGuesses"></span> <span class="strikes" id="strikes"><i></i><i></i><i></i></span></span>
       <span class="mono" id="hintText"></span>
     </div>
   </div>
@@ -214,481 +92,72 @@ a { color: var(--paper); text-underline-offset: 3px; }
     <div class="pts" id="vPts"></div>
     <p id="vSub"></p>
     <p class="credit" id="vCredit"></p>
-    <button class="btn primary next" id="nextBtn">Next picture</button>
+    <button class="btn primary next" id="nextBtn"></button>
   </div>
 </section>
 
 <section id="end" hidden>
   <span class="mono" id="endLabel"></span>
-  <p class="score-big"><span id="endScore">0</span><small>/ 5,000</small></p>
+  <p class="score-big"><span id="endScore">0</span><small id="endOutOf"></small></p>
   <p class="rank" id="endRank"></p>
   <div class="rows" id="endRows"></div>
   <div class="actions">
-    <button class="btn primary" id="againBtn">Play again</button>
-    <button class="btn" id="copyBtn">Copy result</button>
-    <button class="btn ghost" id="homeBtn">Back to start</button>
+    <button class="btn primary" id="againBtn"></button>
+    <button class="btn" id="challengeBtn" data-t="end.challenge"></button>
+    <button class="btn" id="copyBtn"></button>
+    <button class="btn ghost" id="homeBtn" data-t="end.home"></button>
     <span class="mono" id="endBest"></span>
   </div>
-  <textarea id="shareText" rows="4" readonly hidden aria-label="Result to share"></textarea>
+  <textarea id="shareText" rows="4" readonly hidden aria-label="Share"></textarea>
 </section>
 
-<section id="about" hidden>
-  <button class="btn ghost" id="aboutBack" style="align-self:flex-start">&larr; Back</button>
-  <h1>Settings and credits</h1>
+<section id="how" class="page" hidden>
+  <h1 data-t="how.title"></h1>
+  <ol>
+    <li data-t-html="how.1"></li><li data-t-html="how.2"></li><li data-t-html="how.3"></li><li data-t-html="how.4"></li>
+  </ol>
   <div>
-    <h2>Movies and actors</h2>
-    <p>Movie scenes and actor photos come from The Movie Database. It needs a free API key: create an account at <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">themoviedb.org/settings/api</a>, then paste either the API key or the read access token here. It is kept only in this browser.</p>
+    <h2 data-t="how.modes"></h2>
+    <div class="modes3">
+      <div><h3 data-t="mode.classic"></h3><p data-t="how.classic"></p></div>
+      <div><h3 data-t="mode.sprint"></h3><p data-t="how.sprint"></p></div>
+      <div><h3 data-t="mode.survival"></h3><p data-t="how.survival"></p></div>
+    </div>
+  </div>
+  <div><h2 data-t="how.more"></h2><p data-t-html="how.daily"></p><p data-t-html="how.challenge"></p><p data-t-html="how.diff"></p></div>
+  <a class="btn primary" href="#" style="align-self:flex-start;text-decoration:none" data-t="how.cta"></a>
+</section>
+
+<section id="profile" class="page" hidden>
+  <h1 data-t="pf.title"></h1>
+  <div><label class="mono" for="nick" data-t="pf.nick" style="display:block;margin-bottom:6px"></label><input id="nick" type="text" maxlength="16" autocomplete="off"></div>
+  <div class="stats" id="pfStats"></div>
+  <div><h2 data-t="pf.cats"></h2><div class="bars" id="pfCats"></div></div>
+  <div><h2 data-t="pf.bests"></h2><div class="bars" id="pfBests"></div></div>
+  <div><h2 id="pfAchTitle"></h2><div class="ach" id="pfAch"></div></div>
+  <div><button class="btn ghost" id="resetBtn" data-t="pf.reset"></button> <span class="mono" id="resetMsg"></span></div>
+</section>
+
+<section id="about" class="page" hidden>
+  <h1 data-t="ab.title"></h1>
+  <div><h2 data-t="ab.what"></h2><p data-t="ab.whatText"></p></div>
+  <div id="keyBox">
+    <h2 data-t="ab.key"></h2>
+    <p data-t-html="ab.keyText"></p>
     <div class="keyrow">
-      <input id="tmdbKey" type="text" placeholder="TMDB API key or read access token" spellcheck="false" autocomplete="off" aria-label="TMDB API key">
-      <button class="btn primary" id="keySave">Save and test</button>
-      <button class="btn ghost" id="keyClear">Remove</button>
+      <input id="tmdbKey" type="text" spellcheck="false" autocomplete="off" aria-label="TMDB API key">
+      <button class="btn primary" id="keySave" data-t="ab.keySave"></button>
+      <button class="btn ghost" id="keyClear" data-t="ab.keyClear"></button>
     </div>
     <p class="mono" id="keyMsg" style="margin-top:8px"></p>
   </div>
-  <div>
-    <h2>Where the pictures come from</h2>
-    <p>Anime characters and series are loaded from <a href="https://anilist.co" target="_blank" rel="noopener">AniList</a>. Movie scenes and actor photos are loaded from <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
-    <p>Obscura stores no pictures of its own. Every image is requested from those services while you play and remains the property of its rights holder. This is a fan-made quiz, not affiliated with any studio or publisher.</p>
-  </div>
+  <div><h2 data-t="ab.src"></h2><p data-t-html="ab.srcText"></p><p data-t="ab.rights"></p></div>
+  <div><h2 data-t="ab.install"></h2><p data-t="ab.installText"></p><button class="btn" id="installBtn" data-t="ab.installBtn" hidden></button></div>
 </section>
 
-<script>
-(() => {
-'use strict';
-const $ = id => document.getElementById(id);
-const CATS = { achar: 'Anime characters', anime: 'Anime series', movie: 'Movies', actor: 'Actors' };
-const ASK = { achar: 'Which character is this?', anime: 'Which anime is this?', movie: 'Which movie is this scene from?', actor: 'Which actor is this?' };
-const NEEDS_KEY = { movie: true, actor: true };
-const SIZE = { easy: { achar: 50, anime: 50, movie: 60, actor: 40 }, normal: { achar: 100, anime: 100, movie: 120, actor: 80 }, hard: { achar: 200, anime: 200, movie: 200, actor: 150 } };
-const FX = { pixel: 'Pixelated', blur: 'Out of focus', zoom: 'Extreme close-up', tiles: 'Behind tiles', shuffle: 'Scrambled' };
-const ROUNDS = 5, DUR = 30000, MAXPTS = 1000, FLOOR = 100, WRONG = 100, HINT = 150, STRIKES = 3;
-const COVER = '#1d1916', TTL = 3 * 864e5;
-
-let BYID = {}, game = null, round = null, raf = 0, diff = 'normal';
-const PACK = {};   // cat -> items in popularity order (most famous first)
-
-/* ---------- small utilities ---------- */
-const store = {
-  get() { try { return JSON.parse(localStorage.getItem('obscura.live.v1')) || {}; } catch { return {}; } },
-  set(patch) { try { localStorage.setItem('obscura.live.v1', JSON.stringify({ ...this.get(), ...patch })); } catch {} }
-};
-const cache = {
-  get(k) { try { const v = JSON.parse(localStorage.getItem('obscura.c.' + k)); return v && Date.now() - v.t < TTL ? v.d : null; } catch { return null; } },
-  set(k, d) { try { localStorage.setItem('obscura.c.' + k, JSON.stringify({ t: Date.now(), d })); } catch {} }
-};
-function hash(str) { let h = 2166136261; for (const c of str) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
-function rng(seed) { let a = seed >>> 0; return () => { a += 0x6D2B79F5; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
-function shuffled(arr, r) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
-const fmt = n => n.toLocaleString('en-US');
-const today = () => new Date().toISOString().slice(0, 10);
-const yesterday = () => new Date(Date.now() - 864e5).toISOString().slice(0, 10);
-const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-function loadImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
-function show(id) { for (const s of ['home', 'play', 'end', 'about']) $(s).hidden = s !== id; window.scrollTo(0, 0); }
-const tmdbKey = () => store.get().tmdb || '';
-
-/* ---------- picture sources ----------
-   Each loader returns items {id, cat, a (answer), al (other accepted names), sub, f (image url), via, src}. */
-async function anilist(query) {
-  const r = await fetch('https://graphql.anilist.co', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ query }) });
-  if (r.status === 429) throw new Error('AniList is busy. Wait a minute and try again.');
-  if (!r.ok) throw new Error('AniList did not answer (' + r.status + ').');
-  return (await r.json()).data;
-}
-async function tmdb(path, key = tmdbKey()) {
-  const bearer = key.length > 60, sep = path.includes('?') ? '&' : '?';
-  const r = await fetch('https://api.themoviedb.org/3' + path + (bearer ? '' : sep + 'api_key=' + encodeURIComponent(key)), bearer ? { headers: { Authorization: 'Bearer ' + key } } : {});
-  if (r.status === 401) throw new Error('TMDB rejected the key. Check it in Settings.');
-  if (!r.ok) throw new Error('TMDB did not answer (' + r.status + ').');
-  return r.json();
-}
-const LOADERS = {
-  async achar(page) {
-    const d = await anilist(`{ Page(page:${page}, perPage:50){ characters(sort:FAVOURITES_DESC){ id name{full alternative} image{large} siteUrl media(sort:POPULARITY_DESC, perPage:1){nodes{title{english romaji}}} } } }`);
-    return d.Page.characters.filter(c => c.image && c.image.large && c.name.full).map(c => {
-      const m = c.media.nodes[0], from = m ? (m.title.english || m.title.romaji) : '';
-      const parts = c.name.full.split(' '), flipped = parts.length === 2 ? parts[1] + ' ' + parts[0] : '';
-      return { id: 'c' + c.id, cat: 'achar', a: c.name.full, al: [flipped, ...(c.name.alternative || [])].filter(x => x && /[a-z]/i.test(x)).map(x => x.replace(/\s*\(.*?\)/g, '')), sub: from ? 'From ' + from : '', f: c.image.large, via: 'AniList', src: c.siteUrl };
-    });
-  },
-  async anime(page) {
-    const d = await anilist(`{ Page(page:${page}, perPage:50){ media(type:ANIME, sort:POPULARITY_DESC, isAdult:false, format_in:[TV,MOVIE]){ id title{english romaji} synonyms coverImage{extraLarge} seasonYear format siteUrl } } }`);
-    return d.Page.media.filter(m => m.coverImage && m.coverImage.extraLarge).map(m => {
-      const a = m.title.english || m.title.romaji;
-      return { id: 'a' + m.id, cat: 'anime', a, al: [m.title.romaji, ...(m.synonyms || [])].filter(x => x && x !== a && /^[\x20-\x7e]+$/.test(x)), sub: [m.format === 'MOVIE' ? 'Anime film' : 'Anime series', m.seasonYear].filter(Boolean).join(', '), f: m.coverImage.extraLarge, via: 'AniList', src: m.siteUrl, franchise: true };
-    });
-  },
-  async movie(page) {
-    const out = [];
-    for (let p = (page - 1) * 3 + 1; p <= page * 3; p++) {   // one "page" here is 60 movies, the most voted first
-      const d = await tmdb(`/discover/movie?sort_by=vote_count.desc&include_adult=false&language=en-US&page=${p}`);
-      for (const m of d.results) if (m.backdrop_path) out.push({ id: 'm' + m.id, cat: 'movie', a: m.title, al: m.original_title && m.original_title !== m.title ? [m.original_title] : [], sub: (m.release_date || '').slice(0, 4), f: 'https://image.tmdb.org/t/p/w1280' + m.backdrop_path, via: 'TMDB', src: 'https://www.themoviedb.org/movie/' + m.id });
-    }
-    return out;
-  },
-  async actor(page) {
-    // lead actors of the most voted movies: famous faces first
-    const out = [], seen = new Set();
-    for (let p = (page - 1) * 2 + 1; p <= page * 2; p++) {
-      const d = await tmdb(`/discover/movie?sort_by=vote_count.desc&include_adult=false&language=en-US&page=${p}`);
-      const credits = await Promise.all(d.results.map(m => tmdb(`/movie/${m.id}/credits?language=en-US`).then(c => [m, c]).catch(() => null)));
-      for (const mc of credits) if (mc) for (const c of mc[1].cast.slice(0, 4)) {
-        if (!c.profile_path || seen.has(c.id) || c.known_for_department !== 'Acting') continue;
-        seen.add(c.id);
-        out.push({ id: 'p' + c.id, cat: 'actor', a: c.name, al: [], sub: 'Seen in ' + mc[0].title, f: 'https://image.tmdb.org/t/p/h632' + c.profile_path, via: 'TMDB', src: 'https://www.themoviedb.org/person/' + c.id });
-      }
-    }
-    return out;
-  }
-};
-const PER = { achar: 50, anime: 50, movie: 60, actor: 40 };
-function franchiseKey(t) { const k = norm(t.split(/:| Season| Part| Movie| The Movie| \d+(st|nd|rd|th)| II\b| -/i)[0]); return k.length >= 4 ? k : norm(t); }
-async function ensure(cat, want) {
-  PACK[cat] = PACK[cat] || []; PACK[cat].pages = PACK[cat].pages || 0;
-  const maxPages = Math.ceil(SIZE.hard[cat] / PER[cat]) + 2;
-  while (PACK[cat].length < want && PACK[cat].pages < maxPages) {
-    const page = ++PACK[cat].pages, ck = cat + '.' + page;
-    let items = cache.get(ck);
-    if (!items) { items = await LOADERS[cat](page); cache.set(ck, items); }
-    const names = new Set(PACK[cat].map(d => d.fk || norm(d.a)));
-    for (const d of items) {
-      d.fk = d.franchise ? franchiseKey(d.a) : norm(d.a);
-      if (!d.fk || names.has(d.fk) || BYID[d.id]) continue;   // one entry per name, and one per anime franchise
-      names.add(d.fk);
-      d.keys = [d.a, ...(d.al || [])].map(norm).filter(Boolean);
-      const bare = d.keys[0].replace(/^(the|a) /, ''); if (bare !== d.keys[0]) d.keys.push(bare);
-      d.rank = PACK[cat].length; BYID[d.id] = d; PACK[cat].push(d);
-    }
-  }
-  return PACK[cat].slice(0, want);
-}
-const available = () => Object.keys(CATS).filter(c => !NEEDS_KEY[c] || tmdbKey());
-
-/* ---------- the distortions: clarity t runs 0..1, and t = 1 is the untouched picture ---------- */
-const scratch = document.createElement('canvas');
-function setup(fx, r, W, H) {
-  const p = { fx };
-  if (fx === 'zoom') { p.cx = .3 + r() * .4; p.cy = .22 + r() * .4; }
-  if (fx === 'tiles' || fx === 'shuffle') {
-    const cols = fx === 'tiles' ? 6 : 4;
-    p.cols = cols; p.rows = clamp(Math.round(cols * H / W), 3, 9);
-    const n = p.cols * p.rows, idx = [...Array(n).keys()];
-    p.order = shuffled(idx, r);
-    if (fx === 'shuffle') { const s = shuffled(idx, r), to = {}; s.forEach((v, i) => to[v] = s[(i + 1) % n]); p.from = idx.map(i => to[i]); }
-  }
-  return p;
-}
-function draw(ctx, img, p, t) {
-  const W = ctx.canvas.width, H = ctx.canvas.height; t = Math.max(0, t);
-  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-  ctx.canvas.style.filter = ''; ctx.canvas.style.transform = '';
-  if (t >= 1) { ctx.drawImage(img, 0, 0, W, H); return; }
-  if (p.fx === 'pixel') {
-    const n = Math.max(4, Math.round(5 * Math.pow(W / 5, Math.pow(t, 1.7)))), m = Math.max(3, Math.round(n * H / W));
-    scratch.width = n; scratch.height = m;
-    scratch.getContext('2d').drawImage(img, 0, 0, n, m);
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(scratch, 0, 0, n, m, 0, 0, W, H);
-  } else if (p.fx === 'blur') {
-    ctx.drawImage(img, 0, 0, W, H);
-    const shown = ctx.canvas.clientWidth || W;
-    ctx.canvas.style.filter = `blur(${(shown * .065 * Math.pow(1 - t, 1.5)).toFixed(2)}px)`;
-    ctx.canvas.style.transform = 'scale(1.12)';
-  } else if (p.fx === 'zoom') {
-    const s = .08 * Math.pow(1 / .08, Math.pow(t, 1.35)), w = W * s, h = H * s;
-    const x = clamp(p.cx * W - w / 2, 0, W - w), y = clamp(p.cy * H - h / 2, 0, H - h);
-    ctx.drawImage(img, x * img.width / W, y * img.height / H, w * img.width / W, h * img.height / H, 0, 0, W, H);
-  } else if (p.fx === 'tiles') {
-    ctx.drawImage(img, 0, 0, W, H);
-    const n = p.order.length, open = 2 + Math.floor((n - 2) * t), tw = W / p.cols, th = H / p.rows;
-    ctx.fillStyle = COVER;
-    for (let k = open; k < n; k++) { const i = p.order[k]; ctx.fillRect(Math.floor((i % p.cols) * tw), Math.floor(Math.floor(i / p.cols) * th), Math.ceil(tw), Math.ceil(th)); }
-  } else if (p.fx === 'shuffle') {
-    const n = p.order.length, fixed = new Set(p.order.slice(0, Math.floor(n * Math.pow(t, 1.15)))), tw = W / p.cols, th = H / p.rows;
-    const sw = img.width / p.cols, sh = img.height / p.rows;
-    for (let i = 0; i < n; i++) {
-      const s = fixed.has(i) ? i : p.from[i];
-      ctx.drawImage(img, (s % p.cols) * sw, Math.floor(s / p.cols) * sh, sw, sh, Math.floor((i % p.cols) * tw), Math.floor(Math.floor(i / p.cols) * th), Math.ceil(tw), Math.ceil(th));
-    }
-  }
-}
-
-/* ---------- home ---------- */
-function renderHome(note) {
-  const s = store.get(), box = $('cats'), hasKey = !!tmdbKey();
-  box.innerHTML = '';
-  const add = (key, label, wide) => {
-    const locked = NEEDS_KEY[key] && !hasKey, b = document.createElement('button');
-    b.className = 'btn' + (wide ? ' wide' : '') + (locked ? ' locked' : '');
-    const best = s.best && s.best[key + '.' + diff];
-    b.innerHTML = `<span>${label}</span><small>${locked ? 'add TMDB key' : best ? 'best ' + fmt(best) : key === 'mix' ? (hasKey ? 'movies + anime' : 'anime') : 'top ' + SIZE[diff][key]}</small>`;
-    b.onclick = () => locked ? openAbout() : newGame('free', key);
-    box.append(b);
-  };
-  add('mix', 'Everything mixed', true);
-  for (const k of ['movie', 'actor', 'achar', 'anime']) add(k, CATS[k]);
-  for (const b of $('diff').children) b.setAttribute('aria-pressed', b.dataset.d === diff);
-  const d = s.daily && s.daily.date === today() ? s.daily : null;
-  $('dailyBtn').disabled = false;
-  $('dailyBtn').querySelector('strong').textContent = d ? `Today's score: ${fmt(d.score)}` : "Play today's five";
-  $('dailyMeta').textContent = note || (d ? `Play again for practice${s.streak > 1 ? ' · ' + s.streak + '-day streak' : ''}` : (s.streak > 0 && s.lastDaily === yesterday() ? `Keep your ${s.streak}-day streak` : 'Five new pictures every day'));
-}
-for (const b of $('diff').children) b.onclick = () => { diff = b.dataset.d; store.set({ diff }); renderHome(); };
-
-let heroTimer = 0, heroRun = 0;
-async function hero() {
-  const cv = $('heroCanvas'), ctx = cv.getContext('2d'), run = ++heroRun;
-  const pool = [...(PACK.achar || []).slice(0, 40), ...(PACK.anime || []).slice(0, 30), ...(PACK.actor || []).slice(0, 30)];
-  if (!pool.length) return;
-  const picks = shuffled(pool, Math.random), still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let k = 0;
-  const one = async () => {
-    if (run !== heroRun) return;
-    const d = picks[k++ % picks.length], fx = ['pixel', 'tiles', 'shuffle', 'zoom'][k % 4];
-    let img; try { img = await loadImg(d.f); } catch { if (k < 8) one(); return; }
-    if (run !== heroRun) return;
-    const crop = document.createElement('canvas'); crop.width = cv.width; crop.height = cv.height;
-    const sc = Math.max(cv.width / img.width, cv.height / img.height);
-    crop.getContext('2d').drawImage(img, (cv.width - img.width * sc) / 2, (cv.height - img.height * sc) / 2, img.width * sc, img.height * sc);
-    const p = setup(fx, rng(hash(d.id)), cv.width, cv.height), t0 = performance.now(), LEN = 7000;
-    $('heroFx').textContent = FX[fx]; $('heroName').textContent = '?';
-    if (still) { draw(ctx, crop, p, .55); return; }
-    const tick = now => {
-      if (run !== heroRun || $('home').hidden) return;
-      const t = (now - t0) / LEN;
-      draw(ctx, crop, p, Math.min(1, t));
-      if (t >= 1) $('heroName').textContent = d.a;
-      if (t < 1.45) heroTimer = requestAnimationFrame(tick); else one();
-    };
-    heroTimer = requestAnimationFrame(tick);
-  };
-  one();
-}
-
-/* ---------- game flow ---------- */
-async function newGame(mode, cat) {
-  const cats = mode === 'daily' || cat === 'mix' ? available() : [cat], level = mode === 'daily' ? 'normal' : diff;
-  $('dailyMeta').textContent = 'Loading pictures…';
-  let pool = [];
-  try { for (const c of cats) pool = pool.concat(await ensure(c, SIZE[level][c])); }
-  catch (e) { renderHome(e.message); return; }
-  if (pool.length < ROUNDS) { renderHome('Not enough pictures loaded. Try again in a minute.'); return; }
-  const fxs = Object.keys(FX);
-  let r = Math.random, items;
-  if (mode === 'daily') { r = rng(hash('obscura-' + today())); items = shuffled(pool.slice().sort((a, b) => a.id < b.id ? -1 : 1), r).slice(0, ROUNDS); }
-  else {
-    const seen = new Set(store.get().seen || []);
-    let fresh = pool.filter(d => !seen.has(d.id));
-    if (fresh.length < ROUNDS) { store.set({ seen: [...seen].filter(id => !pool.some(d => d.id === id)) }); fresh = pool; }
-    items = shuffled(fresh, r).slice(0, ROUNDS);
-  }
-  const f = shuffled(fxs, r);
-  game = { mode, cat: mode === 'daily' ? 'mix' : cat, cats, level, date: today(), picks: items.map((d, i) => ({ id: d.id, fx: f[i % f.length], seed: Math.floor(r() * 1e9) })), i: 0, results: [] };
-  heroRun++; show('play'); startRound();
-}
-const totalOf = g => g.results.reduce((s, r) => s + r.pts, 0);
-
-function fit() {
-  if (!round || !round.img) return;
-  const st = $('stage').getBoundingClientRect(), ar = round.img.width / round.img.height;
-  let w = st.width, h = w / ar;
-  if (h > st.height) { h = st.height; w = h * ar; }
-  $('frame').style.width = Math.floor(w) + 'px'; $('frame').style.height = Math.floor(h) + 'px';
-}
-new ResizeObserver(() => { fit(); if (round && round.img) draw(round.ctx, round.img, round.p, round.done ? 1 : round.t); }).observe($('stage'));
-
-async function startRound() {
-  cancelAnimationFrame(raf);
-  const pk = game.picks[game.i], d = BYID[pk.id];
-  round = { d, pk, wrong: 0, hint: false, done: false, t: 0, img: null, tried: new Set() };
-  $('pips').innerHTML = game.picks.map((_, i) => `<i class="${i < game.i ? 'done' : i === game.i ? 'now' : ''}"></i>`).join('');
-  $('total').textContent = fmt(totalOf(game));
-  $('roundLabel').textContent = `Round ${game.i + 1} of ${ROUNDS} · ${CATS[d.cat]}`;
-  $('fxLabel').textContent = FX[pk.fx];
-  $('guess').value = ''; $('guess').placeholder = ASK[d.cat] + ' Start typing…';
-  $('hintText').textContent = ''; $('hintBtn').disabled = false;
-  $('opts').hidden = true;
-  [...$('strikes').children].forEach(i => i.className = '');
-  $('guessing').hidden = false; $('verdict').hidden = true;
-  $('fill').style.width = '100%'; $('avail').textContent = MAXPTS;
-  const cv = $('cv'); round.ctx = cv.getContext('2d');
-  round.ctx.clearRect(0, 0, cv.width, cv.height);
-  const mine = round;
-  let img; try { img = await loadImg(d.f); } catch { img = null; }
-  if (round !== mine) return;
-  if (!img) { finish(false, true); return; }
-  round.img = img;
-  const sc = Math.min(1, 1100 / Math.max(img.width, img.height));
-  cv.width = Math.round(img.width * sc); cv.height = Math.round(img.height * sc);
-  round.p = setup(pk.fx, rng(pk.seed), cv.width, cv.height);
-  fit();
-  round.t0 = performance.now();
-  if (matchMedia('(hover: hover)').matches) $('guess').focus();
-  const nx = game.picks[game.i + 1]; if (nx) loadImg(BYID[nx.id].f).catch(() => {});
-  const tick = now => {
-    if (round !== mine || round.done) return;
-    round.t = Math.min(1, (now - round.t0) / DUR);
-    draw(round.ctx, round.img, round.p, round.t);
-    const a = avail();
-    $('avail').textContent = a; $('fill').style.width = (a / MAXPTS * 100) + '%';
-    raf = requestAnimationFrame(tick);
-  };
-  raf = requestAnimationFrame(tick);
-}
-function avail() {
-  const base = Math.round(MAXPTS - (MAXPTS - FLOOR) * round.t);
-  return Math.max(0, base - WRONG * round.wrong - (round.hint ? HINT : 0));
-}
-function finish(ok, broken) {
-  if (round.done) return;
-  round.done = true; cancelAnimationFrame(raf);
-  const d = round.d, pts = ok ? Math.max(50, avail()) : 0;
-  const secs = round.t0 ? Math.min(999, (performance.now() - round.t0) / 1000) : 0;
-  game.results.push({ id: d.id, pts, ok, secs: +secs.toFixed(1), wrong: round.wrong, hint: round.hint, fx: round.pk.fx });
-  if (round.img) draw(round.ctx, round.img, round.p, 1);
-  const seen = new Set(store.get().seen || []); seen.add(d.id); store.set({ seen: [...seen].slice(-600) });
-  $('total').textContent = fmt(totalOf(game));
-  $('guessing').hidden = true; $('verdict').hidden = false; $('opts').hidden = true;
-  const tag = $('vTag');
-  tag.className = 'mono tag ' + (ok ? 'ok' : 'no');
-  tag.textContent = broken ? 'This picture did not load' : ok ? `Correct in ${secs.toFixed(1)} seconds` : round.wrong >= STRIKES ? 'Three wrong guesses' : 'Round given up';
-  $('vTitle').textContent = d.a;
-  $('vSub').textContent = d.sub;
-  $('vPts').textContent = (ok ? '+' : '') + fmt(pts);
-  $('vCredit').innerHTML = '';
-  $('vCredit').append('Picture from ', Object.assign(document.createElement('a'), { href: d.src, textContent: d.via, target: '_blank', rel: 'noopener' }));
-  $('nextBtn').textContent = game.i + 1 < ROUNDS ? 'Next picture' : 'See your result';
-  requestAnimationFrame(() => { fit(); if (round.img) draw(round.ctx, round.img, round.p, 1); $('nextBtn').focus(); });
-}
-$('nextBtn').onclick = () => { game.i++; if (game.i < ROUNDS) startRound(); else endGame(); };
-$('giveUpBtn').onclick = () => finish(false);
-$('hintBtn').onclick = () => {
-  if (round.hint || round.done) return;
-  round.hint = true; $('hintBtn').disabled = true;
-  $('hintText').textContent = round.d.a.split(' ').map(w => { let first = true; return [...w].map(ch => /[\p{L}\p{N}]/u.test(ch) ? (first ? (first = false, ch) : '·') : ch).join(''); }).join('  ');
-  $('guess').focus();
-};
-
-/* ---------- guessing: type, then choose from the list ---------- */
-let matches = [], sel = 0;
-function pool() { return game.cats.flatMap(c => PACK[c] || []); }
-function refresh() {
-  const q = norm($('guess').value), ul = $('opts');
-  if (!q || !round || round.done) { ul.hidden = true; $('guess').setAttribute('aria-expanded', 'false'); matches = []; return; }
-  const score = d => d.keys.includes(q) ? 0 : d.keys.some(k => k.startsWith(q)) ? 1 : d.keys.some(k => k.includes(' ' + q)) ? 2 : 3;
-  matches = pool().filter(d => !round.tried.has(d.id) && d.keys.some(k => k.includes(q)))
-    .sort((a, b) => (score(a) - score(b)) || (a.rank - b.rank)).slice(0, 7);
-  sel = 0; ul.innerHTML = '';
-  if (!matches.length) { const li = document.createElement('li'); li.className = 'none'; li.textContent = 'No match. Try another spelling.'; ul.append(li); }
-  matches.forEach((d, i) => {
-    const li = document.createElement('li'); li.setAttribute('role', 'option'); li.id = 'opt' + i; li.setAttribute('aria-selected', i === 0);
-    li.append(Object.assign(document.createElement('span'), { textContent: d.a }), Object.assign(document.createElement('small'), { textContent: d.cat === 'achar' ? d.sub.replace(/^From /, '').slice(0, 28) : d.cat === 'movie' ? d.sub : CATS[d.cat] }));
-    li.onmousedown = e => { e.preventDefault(); submit(d); };
-    ul.append(li);
-  });
-  ul.hidden = false; $('guess').setAttribute('aria-expanded', 'true');
-}
-function move(dir) {
-  if (!matches.length) return;
-  sel = (sel + dir + matches.length) % matches.length;
-  [...$('opts').children].forEach((li, i) => li.setAttribute('aria-selected', i === sel));
-  $('guess').setAttribute('aria-activedescendant', 'opt' + sel);
-}
-function submit(d) {
-  if (!d || round.done || !round.img) return;
-  if (d.id === round.d.id) return finish(true);
-  round.wrong++; round.tried.add(d.id);
-  [...$('strikes').children].forEach((i, k) => i.className = k < round.wrong ? 'on' : '');
-  const f = $('frame'); f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake');
-  $('guess').value = ''; refresh();
-  if (round.wrong >= STRIKES) finish(false);
-}
-$('guess').addEventListener('input', refresh);
-$('guess').addEventListener('keydown', e => {
-  if (e.key === 'ArrowDown') { e.preventDefault(); move(1); }
-  else if (e.key === 'ArrowUp') { e.preventDefault(); move(-1); }
-  else if (e.key === 'Escape') { $('opts').hidden = true; }
-});
-$('guess').addEventListener('blur', () => { $('opts').hidden = true; });
-$('guess').addEventListener('focus', refresh);
-$('askForm').addEventListener('submit', e => { e.preventDefault(); submit(matches[sel]); });
-$('quitBtn').onclick = goHome;
-
-/* ---------- end of game ---------- */
-function rankFor(s) {
-  return s >= 4200 ? 'Projectionist. You saw it before it was there.' : s >= 3200 ? 'Sharp eye. Very little gets past you.'
-    : s >= 2000 ? 'Well developed. A solid set.' : s >= 800 ? 'Still in the tray. Give it another run.' : 'Lens cap on. The next five are yours.';
-}
-const gameName = () => game.mode === 'daily' ? 'Daily ' + game.date : (game.cat === 'mix' ? 'Mixed' : CATS[game.cat]) + ' · ' + game.level;
-function shareLine() {
-  const sq = game.results.map(r => r.pts >= 800 ? '🟩' : r.pts >= 500 ? '🟨' : r.pts > 0 ? '🟧' : '⬛').join('');
-  return `Obscura · ${gameName()}\n${fmt(totalOf(game))} / 5,000\n${sq}`;
-}
-function endGame() {
-  const score = totalOf(game), s = store.get();
-  let bestNote = '';
-  if (game.mode === 'daily') {
-    if (!(s.daily && s.daily.date === game.date)) {
-      const streak = s.lastDaily === yesterday() ? (s.streak || 0) + 1 : 1;
-      store.set({ daily: { date: game.date, score }, lastDaily: game.date, streak });
-      bestNote = streak > 1 ? `${streak}-day streak` : 'Come back tomorrow for five new pictures';
-    } else bestNote = `Practice run · today's score stays ${fmt(s.daily.score)}`;
-  } else {
-    const k = game.cat + '.' + game.level, best = { ...(s.best || {}) }, prev = best[k] || 0;
-    if (score > prev) { best[k] = score; store.set({ best }); bestNote = prev ? 'New personal best' : ''; }
-    else bestNote = `Personal best ${fmt(prev)}`;
-  }
-  $('endLabel').textContent = game.mode === 'daily' ? gameName() : 'Free play · ' + gameName();
-  $('endScore').textContent = fmt(score);
-  $('endRank').textContent = rankFor(score);
-  $('endBest').textContent = bestNote;
-  $('againBtn').textContent = game.mode === 'daily' ? 'Free play' : 'Play again';
-  const rows = $('endRows'); rows.innerHTML = '';
-  for (const r of game.results) {
-    const d = BYID[r.id], row = document.createElement('div'); row.className = 'row';
-    const mid = document.createElement('div');
-    mid.append(Object.assign(document.createElement('strong'), { textContent: d.a }),
-      Object.assign(document.createElement('span'), { className: 'mono', textContent: `${FX[r.fx]} · ${r.ok ? r.secs.toFixed(1) + 's' : 'missed'}${r.wrong ? ' · ' + r.wrong + ' wrong' : ''}${r.hint ? ' · hint' : ''}` }));
-    row.append(Object.assign(new Image(), { src: d.f, alt: '' }), mid, Object.assign(document.createElement('span'), { className: 'pts' + (r.pts ? '' : ' zero'), textContent: fmt(r.pts) }));
-    rows.append(row);
-  }
-  $('shareText').hidden = true; $('copyBtn').textContent = 'Copy result';
-  show('end');
-}
-$('againBtn').onclick = () => { const m = game.mode === 'daily' ? 'mix' : game.cat; goHome(); newGame('free', m); };
-$('homeBtn').onclick = goHome;
-$('copyBtn').onclick = async () => {
-  const text = shareLine();
-  try { await navigator.clipboard.writeText(text); $('copyBtn').textContent = 'Copied'; }
-  catch { const ta = $('shareText'); ta.value = text; ta.hidden = false; ta.select(); $('copyBtn').textContent = 'Select and copy below'; }
-};
-function goHome() { cancelAnimationFrame(raf); round = null; game = null; renderHome(); show('home'); hero(); }
-
-/* ---------- settings ---------- */
-function openAbout() { $('tmdbKey').value = tmdbKey(); $('keyMsg').textContent = tmdbKey() ? 'A key is saved in this browser.' : ''; heroRun++; show('about'); }
-$('aboutBtn').onclick = openAbout;
-$('aboutBack').onclick = goHome;
-$('keySave').onclick = async () => {
-  const key = $('tmdbKey').value.trim();
-  if (!key) { $('keyMsg').textContent = 'Paste a key first.'; return; }
-  $('keyMsg').textContent = 'Testing the key…';
-  try { await tmdb('/configuration', key); store.set({ tmdb: key }); $('keyMsg').textContent = 'Key works. Movies and actors are unlocked.'; }
-  catch (e) { $('keyMsg').textContent = e instanceof TypeError ? 'Could not reach TMDB. Check your connection.' : e.message; }
-};
-$('keyClear').onclick = () => { store.set({ tmdb: '' }); $('tmdbKey').value = ''; $('keyMsg').textContent = 'Key removed.'; };
-$('dailyBtn').onclick = () => newGame('daily');
-
-/* ---------- boot ---------- */
-(async () => {
-  diff = store.get().diff || 'normal';
-  let note = '';
-  try { await ensure('achar', 50); await ensure('anime', 50); }
-  catch (e) { note = e instanceof TypeError ? 'Could not reach AniList. Check your connection and reload.' : e.message; }
-  renderHome(note);
-  hero();
-})();
-})();
-</script>
+<div id="toasts" aria-live="polite"></div>
+<script src="config.js"></script>
+<script src="i18n.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
